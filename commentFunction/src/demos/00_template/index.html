@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>React - Template</title>
+    <script src="../../js/react.min.js"></script>
+    <script src="../../js/react-dom.min.js"></script>
+    <script src="../../js/browser.min.js"></script>
+</head>
+<body>
+
+    <div id="container"></div>
+    <script type="text/babel">
+
+        var Comment = React.createClass({
+            //Edit on false until changed
+            getInitialState: function () {
+              return{editing:false}
+            },
+            //Set editing to true on click
+            edit: function () {
+              this.setState({editing:true});
+            },
+            //Remove a comment
+            remove: function () {
+              console.log('remove comment');
+              this.props.deleteFromBoard(this.props.index)
+            },
+            //save a comment
+            save: function () {
+                //Get the updated comment and set the text and index value
+                this.props.updateCommentText(this.refs.newText.value, this.props.index);
+                this.setState({editing:false});
+            },
+
+           renderNormal: function () {
+               return(
+                       <div className="commentContainer">
+                           <div className="commentText">{this.props.children}</div>
+                           <button onClick={this.edit} className="button-primary">Edit</button>
+                           <button onClick={this.remove } className="button-danger">Remove</button>
+                       </div>
+               );
+           },
+
+            renderForm: function () {
+                return(
+                    //Textarea get the children values, whats inside of the box is called children
+                        <div className="commentContainer">
+                            <textarea ref="newText" defaultValue={this.props.children}></textarea>
+                            <button onClick={this.save} className="button-success">Save</button>
+                        </div>
+                );
+            },
+           render: function () {
+                if (this.state.editing) {
+                    return this.renderForm();
+                }else {
+                    return this.renderNormal();
+                }
+
+           }
+
+
+        });
+
+        var Board = React.createClass({
+           getInitialState: function () {
+               return {
+                   //Comments that are stored in an array, if user refresh all comments will be gone because its an array
+                   comments: []
+               }
+           },
+            //Add comment
+            add: function (text) {
+               //Make the arr which will contain comments
+                var arr = this.state.comments;
+                //Push the arr into text
+                arr.push(text);
+                //Save the comments into array
+                this.setState({comments: arr})
+            },
+            //Remove Comment
+            removeComment: function (i) {
+                console.log('Removing comments' + i);
+                var arr = this.state.comments;
+                arr.splice(i, 1);
+                this.setState({comments: arr})
+            },
+            //Update comment
+            updateComment : function (newText, i) {
+                console.log('Updating comment:');
+                var arr = this.state.comments;
+                arr[i] = newText;
+                this.setState({comments: arr})
+            },
+
+            eachComment: function (text, i) {
+                return (
+                    //In making a new comment, the comment will get a key, index, an edit comment and a function to delete the comment
+                    //and it will contain a text which you can edit
+                    <Comment key={i} index={i} updateCommentText={this.updateComment} deleteFromBoard={this.removeComment}>
+                        {text}
+                        </Comment>
+                );
+            },
+            render: function () {
+                return (
+                    //Function to add a new comment with button, and set a default text
+                    //The className="board" is where the comments go, map makes it possible for us to select each index in a array and print it out
+                    <div>
+                        <button onClick={this.add.bind(null, 'Your Text')} className="button-info create">Add New</button>
+                        <div className="board">
+                            {this.state.comments.map(this.eachComment)}
+                        </div>
+                    </div>
+                );
+            }
+        });
+        ReactDOM.render(<Board/> , document.getElementById('container'));
+    </script>
+
+</body>
+</html>
